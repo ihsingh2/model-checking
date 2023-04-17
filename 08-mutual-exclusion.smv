@@ -1,0 +1,35 @@
+MODULE thread(y)
+
+VAR
+
+	location : {nc, wt, cr, ex};
+
+ASSIGN
+
+	init(location) := nc;
+	next(location) :=
+		case
+			location = nc : {nc, wt};
+			(location = wt) & (y > 0) : cr;
+			location = cr : {cr, ex};
+			location = ex : nc;
+			TRUE : location;
+		esac;
+	next(y) :=
+		case
+			(location = wt) & (y > 0) : y - 1;
+			(location = ex) & (y = 0) : y + 1;
+			TRUE : y;
+		esac;
+
+MODULE main
+
+VAR
+
+	y-main : 0 .. 1;
+	prog1 : process thread(y-main);
+	prog2 : process thread(y-main);
+
+ASSIGN
+
+	init(y-main) := 1;
