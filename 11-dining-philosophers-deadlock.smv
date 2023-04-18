@@ -1,0 +1,53 @@
+MODULE philosopher(i, left, right)
+
+VAR
+
+	location : {tnk, rl, rr, hl, hr, eat, ret};
+
+ASSIGN
+
+	init(location) := tnk;
+	next(location) :=
+		case
+			location = tnk : {tnk, rl, rr};
+			(location = rl) & (left = free) : hl;
+			(location = rr) & (right = free) : hr;
+			(location = hl) & (right = free) : eat;
+			(location = hr) & (left = free) : eat;
+			location = eat : {eat, ret};
+			location = ret : tnk;
+			TRUE : location;
+		esac;
+	next(left) :=
+		case
+			(location = rl) & (left = free) : i;
+			(location = hr) & (left = free) : i;
+			location = ret : free;
+			TRUE : left;
+		esac;
+	next(right) :=
+		case
+			(location = rr) & (right = free) : i;
+			(location = hl) & (right = free) : i;
+			location = ret : free;
+			TRUE : right;
+		esac;
+
+FAIRNESS running
+
+MODULE main
+
+VAR
+
+	sticks : array 0 .. 3 of {free, 0, 1, 2, 3};
+	phil0 : process philosopher(0, sticks[0], sticks[3]);
+	phil1 : process philosopher(1, sticks[1], sticks[0]);
+	phil2 : process philosopher(2, sticks[2], sticks[1]);
+	phil3 : process philosopher(3, sticks[3], sticks[2]);
+
+ASSIGN
+
+	init(sticks[0]) := free;
+	init(sticks[1]) := free;
+	init(sticks[2]) := free;
+	init(sticks[3]) := free;
